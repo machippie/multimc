@@ -1,0 +1,50 @@
+# Standards: 0.1
+---
+- name: Fact multimc user
+  set_fact:
+    multimc_user: "{{ multimc_user | default(homebrew_user) | default(ansible_user_id) }}"
+  tags:
+    - multimc
+
+- name: Install psutil package
+  pip:
+    name: psutil
+  tags:
+    - multimc
+
+- become: "{{ (multimc_user != ansible_user_id) | bool }}"
+  become_user: "{{ multimc_user }}"
+  block:
+    - name: Install required package
+      ignore_errors: True
+      homebrew_cask:
+        name: multimc
+        greedy: True
+        options: appdir=/Applications
+        accept_external_apps: False
+        state: upgraded
+      tags:
+        - multimc
+
+    - name: Remove quarantine flag
+      register: multimc_quarantine
+      failed_when: multimc_quarantine.rc != 0 and "No such xattr" not in multimc_quarantine.stderr
+      changed_when: multimc_quarantine.rc == 0
+      command: xattr -d com.apple.quarantine /Applications/MultiMC.app
+      tags:
+        - multimc
+
+    - name: Check program running
+      register: multimc_running
+      pids:
+        name: MultiMC
+      tags:
+        - multimc
+
+    - name: Fact program running
+      set_fact:
+        multimc_started: "{{ multimc_running.pids | length > 0 }}}"
+      tags:
+        - multimc
+
+...
