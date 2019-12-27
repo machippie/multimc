@@ -6,12 +6,6 @@
   tags:
     - multimc
 
-- name: Install psutil package
-  pip:
-    name: psutil
-  tags:
-    - multimc
-
 - become: "{{ (multimc_user != ansible_user_id) | bool }}"
   become_user: "{{ multimc_user }}"
   block:
@@ -34,16 +28,24 @@
       tags:
         - multimc
 
+    - name: Install pidof package
+      homebrew:
+        name: pidof
+      tags:
+        - multimc
+
     - name: Check program running
       register: multimc_running
-      pids:
-        name: MultiMC
+      check_mode: False
+      failed_when: False
+      changed_when: multimc_running.stdout | length > 0 | bool
+      command: pidof MultiMC
       tags:
         - multimc
 
     - name: Fact program running
       set_fact:
-        multimc_started: "{{ multimc_running.pids | length > 0 }}}"
+        multimc_started: "{{ multimc_running.stdout_lines | length > 0 | bool }}"
       tags:
         - multimc
 
