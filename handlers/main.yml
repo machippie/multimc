@@ -1,0 +1,16 @@
+# Standards: 0.1
+---
+- name: Kill multimc
+  command: killall MultiMC
+  register: multimc_kill
+  failed_when: multimc_kill.rc != 0 and "No matching processes belonging to you were found" not in multimc_kill.stderr
+  become: "{{ (multimc_user != ansible_user_id) | bool }}"
+  become_user: "{{ multimc_user }}"
+
+- name: Start multimc
+  when: multimc_started
+  command: open -g /Applications/MultiMC.app
+  become: "{{ (multimc_user != ansible_user_id) | bool }}"
+  become_user: "{{ multimc_user }}"
+
+...

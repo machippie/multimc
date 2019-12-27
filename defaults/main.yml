@@ -1,0 +1,10 @@
+# Standards: 0.1
+---
+# @var multimc_user:description: User to run user-specific commands
+# @var multimc_user:value: multimc_user | default(homebrew_user) | default(ansible_user_id)
+# multimc_user:
+
+# @var multimc_started:description: Start in background after install
+multimc_started: True
+
+...
