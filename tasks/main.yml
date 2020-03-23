@@ -20,33 +20,12 @@
       tags:
         - multimc
 
-    - name: Remove quarantine flag
-      register: multimc_quarantine
-      failed_when: multimc_quarantine.rc != 0 and "No such xattr" not in multimc_quarantine.stderr
-      changed_when: multimc_quarantine.rc == 0
-      command: xattr -d com.apple.quarantine /Applications/MultiMC.app
-      tags:
-        - multimc
-
-    - name: Install pidof package
-      homebrew:
-        name: pidof
-      tags:
-        - multimc
-
-    - name: Check program running
-      register: multimc_running
-      check_mode: False
-      failed_when: False
-      changed_when: multimc_running.stdout | length > 0 | bool
-      command: pidof MultiMC
-      tags:
-        - multimc
-
-    - name: Fact program running
-      set_fact:
-        multimc_started: "{{ multimc_running.stdout_lines | length > 0 | bool }}"
-      tags:
-        - multimc
+- name: Remove quarantine flag
+  register: multimc_quarantine
+  failed_when: multimc_quarantine.rc != 0 and "No such xattr" not in multimc_quarantine.stderr
+  changed_when: multimc_quarantine.rc == 0
+  command: xattr -d com.apple.quarantine /Applications/MultiMC.app
+  tags:
+    - multimc
 
 ...
